@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  #Frontend
+  frontend:
+    build:
+      context: .\client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://backend:5000
+    networks:
+      - mern-network
+
+  # Backend Service
+  backend:
+    build:
+      context: ./server # Adjust this path if your backend code is in a different directory
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongodb:27017/mern-social
+      - JWT_KEY=your_jwt_secret_key # Replace with your actual JWT key
+    networks:
+      - mern-network
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
